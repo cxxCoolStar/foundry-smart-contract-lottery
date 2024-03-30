@@ -32,7 +32,7 @@ import {VRFConsumerBaseV2} from "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2
  * @dev Implements Chainlink VRFv2
  */
 contract Raffle is VRFConsumerBaseV2 {
-    error Raffle_NotEnoughETHSend();
+    error Raffle_NotEnoughETHSent();
     error Raffle_TransferFailed();
     error Raffle_RaffleNotOpen();
     error Raffle_UpkeepNotNeed(
@@ -67,14 +67,14 @@ contract Raffle is VRFConsumerBaseV2 {
     event PickedWinner(address indexed winner);
 
     constructor(
-        uint256 enteranceFee,
+        uint256 entranceFee,
         uint256 interval,
         address vrfCoordinator,
         bytes32 gasLane,
         uint64 subscriptionId,
         uint32 callbackGasLimit
     ) VRFConsumerBaseV2(vrfCoordinator) {
-        i_entranceFee = enteranceFee;
+        i_entranceFee = entranceFee;
         i_interval = interval;
         i_vrfCoordinator = VRFCoordinatorV2Interface(vrfCoordinator);
         i_gasLane = gasLane;
@@ -87,7 +87,7 @@ contract Raffle is VRFConsumerBaseV2 {
 
     function enterRaffle() public payable {
         if (msg.value < i_entranceFee) {
-            revert Raffle_NotEnoughETHSend();
+            revert Raffle_NotEnoughETHSent();
         }
         if (s_raffleState != RaffleState.OPEN) {
             revert Raffle_RaffleNotOpen();
@@ -163,5 +163,9 @@ contract Raffle is VRFConsumerBaseV2 {
 
     function getEntranceFee() external view returns (uint256) {
         return i_entranceFee;
+    }
+
+    function getRaffleState() external view returns (RaffleState) {
+        return s_raffleState;
     }
 }

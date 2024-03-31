@@ -58,7 +58,7 @@ contract HelperConfig is Script {
             gasPriceLink
         );
         LinkToken link = new LinkToken();
-        vm.startBroadcast();
+        vm.stopBroadcast();
 
         NetWorkConfig memory sepoliaConfig = NetWorkConfig({
             entranceFee: 0.01 ether,

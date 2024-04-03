@@ -150,7 +150,7 @@ contract Raffle is VRFConsumerBaseV2 {
         uint256 indexOfWinner = randomWords[0] % s_players.length;
         address winner = s_players[indexOfWinner];
         s_recentWinner = winner;
-        s_raffleState == RaffleState.OPEN;
+        s_raffleState = RaffleState.OPEN;
 
         s_players = new address payable[](0);
         s_lastTimeStamp = block.timestamp;

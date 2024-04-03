@@ -10,7 +10,8 @@ import {VRFCoordinatorV2Mock} from "@chainlink/contracts/src/v0.8/mocks/VRFCoord
 
 contract RaffleTest is Test {
     /* Events */
-    event EnteredRaffle(address);
+    event EnterRaffle(address indexed player);
+
     Raffle raffle;
     HelperConfig helperConfig;
 
@@ -43,7 +44,8 @@ contract RaffleTest is Test {
             gasLane,
             subscriptionId,
             callbackGasLimit,
-            link
+            link,
+            
         ) = helperConfig.activeNetWorkConfig();
         vm.deal(PLAYER, STARTING_USER_BALANCE);
     }
@@ -74,7 +76,7 @@ contract RaffleTest is Test {
     function testEmitsEventOnEntrance() public {
         vm.prank(PLAYER);
         vm.expectEmit(true, false, false, false, address(raffle));
-        emit EnteredRaffle(PLAYER);
+        emit EnterRaffle(PLAYER);
         raffle.enterRaffle{value: entranceFee}();
     }
 
@@ -109,10 +111,10 @@ contract RaffleTest is Test {
         public
         raffleEnteredAndTimePassed
     {
-        raffle.checkUpkeep("");
+        raffle.performUpkeep("");
         // Act
         (bool upkeepNeeded, ) = raffle.checkUpkeep("");
-
+        console.log("state:", upkeepNeeded);
         // Assert
         assert(!upkeepNeeded);
     }
@@ -137,7 +139,7 @@ contract RaffleTest is Test {
         (bool upkeepNeeded, ) = raffle.checkUpkeep("");
 
         // Assert
-        assert(!upkeepNeeded);
+        assert(upkeepNeeded);
     }
 
     /////////////////////////////
@@ -212,7 +214,7 @@ contract RaffleTest is Test {
             i < startingIndex + additionalEntrants;
             i++
         ) {
-            address player = address(uint160(startingIndex));
+            address player = address(uint160(i));
             hoax(player, STARTING_USER_BALANCE);
             raffle.enterRaffle{value: entranceFee}();
         }
@@ -232,11 +234,11 @@ contract RaffleTest is Test {
         // Assert
         console.log(uint256(raffle.getRaffleState()));
         assert(uint256(raffle.getRaffleState()) == 0);
-        // assert(raffle.getRecentWinner() != address(0));
-        // assert(raffle.getLengthOfPlayers() == 0);
-        // assert(previousTimeStamp < raffle.getLastTimeStamp());
-        // assert(
-        //     raffle.getRecentWinner().balance == STARTING_USER_BALANCE + prize 
-        // );
+        assert(raffle.getRecentWinner() != address(0));
+        assert(raffle.getLengthOfPlayers() == 0);
+        assert(previousTimeStamp < raffle.getLastTimeStamp());
+        assert(
+            raffle.getRecentWinner().balance == STARTING_USER_BALANCE + prize
+        );
     }
 }

@@ -10,16 +10,17 @@ import {DevOpsTools} from "../lib/foundry-devops/src/DevOpsTools.sol";
 contract CreateSubscription is Script {
     function CreateSubscriptionUsingConfig() public returns (uint64) {
         HelperConfig helperCofig = new HelperConfig();
-        (, , address vrfCoordinator, , , , ,) = helperCofig
+        (, , address vrfCoordinator, , , , , uint256 deployerKey) = helperCofig
             .activeNetWorkConfig();
-        return createSubscription(vrfCoordinator);
+        return createSubscription(vrfCoordinator, deployerKey);
     }
 
     function createSubscription(
-        address vrfCoordinator
+        address vrfCoordinator,
+        uint deployerKey
     ) public returns (uint64) {
         console.log("Creating subscription on ChainId:", block.chainid);
-        vm.startBroadcast();
+        vm.startBroadcast(deployerKey);
         uint64 subId = VRFCoordinatorV2Mock(vrfCoordinator)
             .createSubscription();
         vm.stopBroadcast();
@@ -46,19 +47,21 @@ contract FundSubscription is Script {
             uint64 subId,
             ,
             address link,
+            uint256 deployerKey
         ) = helperCofig.activeNetWorkConfig();
-        fundSubscription(vrfCoordinator, subId, link);
+        fundSubscription(vrfCoordinator, subId, link, deployerKey);
     }
 
     function fundSubscription(
         address vrfCoordinator,
         uint64 subId,
-        address link
+        address link,
+        uint256 deployerKey
     ) public {
         console.log("Funding subscription:", subId);
         console.log("Using vrfCoordinator:", vrfCoordinator);
         console.log("On ChainID:", block.chainid);
-        vm.startBroadcast();
+        vm.startBroadcast(deployerKey);
         if (block.chainid == 31337) {
             VRFCoordinatorV2Mock(vrfCoordinator).fundSubscription(
                 subId,
